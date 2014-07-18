@@ -73,6 +73,17 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
 		}
 	}
 
+    /*
+    Hydrogen* engine = Hydrogen::get_instance();
+    list<QString> catList = engine->getSong()->get_pattern_list()->get_categories();
+    for( cur_patternCategories = catList.begin(); cur_patternCategories != catList.end(); ++cur_patternCategories )
+    {
+        if ( categoryComboBox->currentText() != *cur_patternCategories ){
+            categoryComboBox->addItem( *cur_patternCategories );
+        }
+    }
+    */
+
 	defaultNameCheck( pattern->get_name(), savepattern );
 	okBtn->setEnabled(true);
 }
@@ -113,13 +124,13 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		pPref->m_patternCategories.push_back( pattCategory );
 	}
 
-	if( __savepattern ){
+    if( __savepattern ) {
 		pattern->set_name( pattName );
 		pattern->set_info( pattInfo );
 		pattern->set_category( pattCategory );
-	}else
+    } else
 	{
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
+        SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
 												  pattName, pattInfo, pattCategory, __nselectedPattern );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
@@ -131,17 +142,15 @@ void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepatte
 
 	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 	
-	for (uint i = 0; i < patternList->size(); i++) {
-		if ( patternList->get(i)->get_name() == pattName) {
-			if (savepattern){
-				patternNameTxt->setText( trUtf8( "%1#2").arg(patternList->get(i)->get_name()) );
-			}
-			else
-			{
-				patternNameTxt->setText( trUtf8( "%1").arg(patternList->get(i)->get_name()) );
-			}
-		}
-	}
+    if ( savepattern && !nameCheck(pattName) )
+    {
+        defaultNameCheck( trUtf8( "%1#2").arg(pattName), savepattern );
+    }
+    else
+    {
+        patternNameTxt->setText( trUtf8( "%1").arg(pattName) );
+    }
+
 }
 
 
