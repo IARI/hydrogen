@@ -42,12 +42,20 @@ class MidiAction : public H2Core::Object {
 			parameter2 = text;
 		}
 
+		void setParameter3( QString text ){
+			parameter3 = text;
+		}
+
 		QString getParameter1(){
 			return parameter1;
 		}
 
 		QString getParameter2(){
 			return parameter2;
+		}
+
+		QString getParameter3(){
+			return parameter3;
 		}
 
 		QString getType(){
@@ -58,6 +66,7 @@ class MidiAction : public H2Core::Object {
 		QString type;
 		QString parameter1;
 		QString parameter2;
+		QString parameter3;
 };
 
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
