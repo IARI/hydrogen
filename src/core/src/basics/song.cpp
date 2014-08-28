@@ -91,7 +91,7 @@ Song::~Song()
 	if ( __pattern_group_sequence ) {
 		for ( unsigned i = 0; i < __pattern_group_sequence->size(); ++i ) {
 			PatternList* pPatternList = ( *__pattern_group_sequence )[i];
-			pPatternList->clear();	// pulisco tutto, i pattern non vanno distrutti qua
+            pPatternList->clear();	// everything is cleaned, but patterns are not destroyed here
 			delete pPatternList;
 		}
 		delete __pattern_group_sequence;
