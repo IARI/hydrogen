@@ -1135,8 +1135,18 @@ void SongEditorPatternList::createBackground()
 			}
 		}
 
+		QString pName = pPattern->get_name();
+		QString pCat = QString("(%1)").arg(pPattern->get_category());
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pName );
+		//int xStart = 30 + p.fontMetrics().width(pName);
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name() );
+		QFont smallTextFont ( textFont);
+		smallTextFont.setPointSize(7);
+		p.setFont(smallTextFont);
+		int cWidth = 20 + p.fontMetrics().width(pCat);
+		p.drawText( m_nWidth - cWidth, text_y - 1, cWidth, m_nGridHeight + 2, Qt::AlignVCenter, pCat );
+		p.setFont(boldTextFont);
+
 	}
 
 }
