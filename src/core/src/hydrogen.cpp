@@ -140,6 +140,7 @@ std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
 std::deque<Note*> m_midiNoteQueue;	///< Midi Note FIFO
 
 PatternList* m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
+PatternList* m_pNextPatternsOff;
 bool m_bAppendNextPattern;		///< Add the next pattern to the list instead
 /// of replace.
 bool m_bDeleteNextPattern;		///< Delete the next pattern from the list.
@@ -259,6 +260,7 @@ void audioEngine_init()
 
 	m_pPlayingPatterns = new PatternList();
 	m_pNextPatterns = new PatternList();
+	m_pNextPatternsOff = new PatternList();
 	m_nSongPos = -1;
 	m_nSelectedPatternNumber = 0;
 	m_nSelectedInstrumentNumber = 0;
@@ -327,6 +329,8 @@ void audioEngine_destroy()
 
 	delete m_pNextPatterns;
 	m_pNextPatterns = NULL;
+	delete m_pNextPatternsOff;
+	m_pNextPatternsOff = NULL;
 
 	delete m_pMetronomeInstrument;
 	m_pMetronomeInstrument = NULL;
@@ -1032,6 +1036,7 @@ void audioEngine_removeSong()
 
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
+	m_pNextPatternsOff->clear();
 
 	audioEngine_clearNoteQueue();
 
@@ -1233,6 +1238,17 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						}
 					}
 					m_pNextPatterns->clear();
+					bSendPatternChange = true;
+				}
+				if ( m_pNextPatternsOff->size() > 0 ) {
+					Pattern * p;
+					for ( uint i = 0;
+						  i < m_pNextPatternsOff->size();
+						  i++ ) {
+						p = m_pNextPatternsOff->get( i );
+						m_pPlayingPatterns->del( p );
+					}
+					m_pNextPatternsOff->clear();
 					bSendPatternChange = true;
 				}
 				if ( m_nPatternStartTick == -1 ) {
@@ -2331,6 +2347,41 @@ void Hydrogen::sequencer_setNextPattern( int pos, bool appendPattern, bool delet
 			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
 					  .arg( pos ).arg( patternList->size() ) );
 			m_pNextPatterns->clear();
+		}
+	} else {
+		ERRORLOG( "can't set next pattern in song mode" );
+		m_pNextPatterns->clear();
+	}
+
+	AudioEngine::get_instance()->unlock();
+}
+
+/// Set the next pattern wrt a Category (stacked-pattern mode only)
+void Hydrogen::sequencer_setNextPatternCategory( int pos, QString category )
+{
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	Song* pSong = getSong();
+	if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
+		PatternList *patternList = pSong->get_pattern_list();
+		unsigned nPatterns = patternList->size();
+		int j = 0; // counts the Patterns with given category
+		for ( unsigned i = 0; i < nPatterns; i++ )
+		{
+			Pattern * p = patternList->get( i );
+			if (p->get_category() == category) {
+				if (j == pos) m_pNextPatterns->add(p);
+				else m_pNextPatternsOff->add(p);
+				j++;
+			}
+		}
+
+		if ( ( pos < 0 ) || ( pos >= ( int )nPatterns ) ) {
+			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
+					  .arg( pos ).arg( j ) );
+			m_pNextPatterns->clear();
+			m_pNextPatternsOff->clear();
 		}
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );

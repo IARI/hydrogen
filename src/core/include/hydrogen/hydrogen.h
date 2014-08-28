@@ -73,6 +73,7 @@ public:
 	int lastMidiEventParameter;
 
 	void sequencer_setNextPattern( int pos, bool appendPattern, bool deletePattern );
+	void sequencer_setNextPatternCategory( int pos, QString category );
 	void togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 
