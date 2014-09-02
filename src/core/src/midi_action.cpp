@@ -41,23 +41,44 @@ using namespace H2Core;
 
 bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param)
 {
-    //helper function to set fx levels
+	//helper function to set fx levels
 
-    Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-    Hydrogen *engine = Hydrogen::get_instance();
-    Song *song = engine->getSong();
-    InstrumentList *instrList = song->get_instrument_list();
-    Instrument *instr = instrList->get( nLine );
-    if ( instr == NULL) return false;
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+	Instrument *instr = instrList->get( nLine );
+	if ( instr == NULL) return false;
 
-    if( fx_param != 0 ){
-        instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
-    } else {
-        instr->set_fx_level( 0 , fx_channel );
-    }
+	if( fx_param != 0 ){
+		instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_channel );
+	} else {
+		instr->set_fx_level( 0 , fx_channel );
+	}
 
-    Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+
+	return true;
+}
+
+bool setCutoff( int instrumentNumber, int value )
+{
+	//helper function to set cutOff levels
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+	Instrument *instr = instrList->get( instrumentNumber );
+	if ( instr == NULL) return false;
+
+	if( value != 0 ){
+		instr->set_filter_cutoff( (float) (value / 127.0 ) );
+	} else {
+		instr->set_filter_cutoff( 0 );
+	}
+
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( instrList->index(instr) );
 
 	return true;
 }
@@ -175,6 +196,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "PLAYLIST_PREV_SONG"
 			  << "TOGGLE_METRONOME"
 			  << "SELECT_INSTRUMENT"
+			  << "INSTRUMENT_CUTOFF"
 			  << "UNDO_ACTION"
 			  << "REDO_ACTION";
 
@@ -294,34 +316,34 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-    if( sActionString == "SELECT_NEXT_PATTERN" ){
-        bool ok;
-        int row = pAction->getParameter1().toInt(&ok,10);
-        if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
-            return false;
-        if(Preferences::get_instance()->patternModePlaysSelected())
-            pEngine->setSelectedPatternNumber( row );
-        else
-            pEngine->sequencer_setNextPattern( row, false, true );
-        return true;
-    }
+	if( sActionString == "SELECT_NEXT_PATTERN" ){
+		bool ok;
+		int row = pAction->getParameter1().toInt(&ok,10);
+		if( row> pEngine->getSong()->get_pattern_list()->size() -1 )
+			return false;
+		if(Preferences::get_instance()->patternModePlaysSelected())
+			pEngine->setSelectedPatternNumber( row );
+		else
+			pEngine->sequencer_setNextPattern( row, false, true );
+		return true;
+	}
 
-    if( sActionString == "SELECT_NEXT_PATTERN_CATEGORY" ){
-        bool ok;
-        int par = pAction->getParameter1().toInt(&ok,10);
-        QString cat = pAction->getParameter3();
-        INFOLOG( QString( "midaction SELECT_NEXT_PATTERN_CATEGORY with par1=%1 and par2=%2" )
-                  .arg( par ).arg( cat ) );
-        if( par > pEngine->getSong()->get_pattern_list()->size() -1 )
-            return false;
-        if(Preferences::get_instance()->patternModePlaysSelected()) {
-            // TODO: improve warninglog
-            WARNINGLOG("triggered midiaction SELECT_NEXT_PATTERN_CATEGORY with patternModePlaysSelected")
-            pEngine->setSelectedPatternNumber( par );
-        } else
-            pEngine->sequencer_setNextPatternCategory(par, cat );
-        return true;
-    }
+	if( sActionString == "SELECT_NEXT_PATTERN_CATEGORY" ){
+		bool ok;
+		int par = pAction->getParameter1().toInt(&ok,10);
+		QString cat = pAction->getParameter3();
+		INFOLOG( QString( "midaction SELECT_NEXT_PATTERN_CATEGORY with par1=%1 and par2=%2" )
+				  .arg( par ).arg( cat ) );
+		if( par > pEngine->getSong()->get_pattern_list()->size() -1 )
+			return false;
+		if(Preferences::get_instance()->patternModePlaysSelected()) {
+			// TODO: improve warninglog
+			WARNINGLOG("triggered midiaction SELECT_NEXT_PATTERN_CATEGORY with patternModePlaysSelected")
+			pEngine->setSelectedPatternNumber( par );
+		} else
+			pEngine->sequencer_setNextPatternCategory(par, cat );
+		return true;
+	}
 
 	if( sActionString == "SELECT_NEXT_PATTERN_RELATIVE" ){
 		bool ok;
@@ -368,14 +390,21 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		return true;
 	}
 
-    if( sActionString == "SELECT_INSTRUMENT" ){
-        bool ok;
-        int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
-        if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number )
-            instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
-        pEngine->setSelectedInstrumentNumber( instrument_number );
-        return true;
-    }
+	if( sActionString == "SELECT_INSTRUMENT" ){
+		bool ok;
+		int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
+		if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number )
+			instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
+		pEngine->setSelectedInstrumentNumber( instrument_number );
+		return true;
+	}
+
+	if( sActionString == "INSTRUMENT_CUTOFF" ){
+		bool ok;
+		int cutOff = pAction->getParameter2().toInt(&ok,10);
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		setCutoff( nLine, cutOff );
+	}
 
 	if( sActionString == "EFFECT1_LEVEL_ABSOLUTE" ){
 		bool ok;

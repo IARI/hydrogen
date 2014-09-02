@@ -339,6 +339,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 
+	m_pUpdateTimer = new QTimer( this );
+	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( selectedInstrumentChangedEvent() ) );
+	m_pUpdateTimer->start(50);
 
 
 
@@ -353,6 +356,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 InstrumentEditor::~InstrumentEditor()
 {
+	m_pUpdateTimer->stop();
 	//INFOLOG( "DESTROY" );
 }
 
@@ -362,10 +366,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
+	int nInstr;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != NULL) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
 		}
@@ -401,6 +406,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		// filter
 		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active());
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff());
+		delete m_pCutoffRotary->getAction();
+		MidiAction* pAction = new MidiAction("INSTRUMENT_CUTOFF");
+		pAction->setParameter1( QString::number( nInstr ));
+		m_pCutoffRotary->setAction(pAction);
+
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance());
 		//~ filter
 
@@ -421,7 +431,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		if (m_pInstrument->get_mute_group() == -1 ) {
 			sMuteGroup = "Off";
 		}
-                m_pMuteGroupLCD->setText( sMuteGroup );		
+		m_pMuteGroupLCD->setText( sMuteGroup );
 		
 		// midi out
 		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1);

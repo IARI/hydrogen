@@ -47,7 +47,7 @@ class LayerPreview;
 ///
 class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -58,9 +58,11 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void setFileforLayer(QString filename );
 
 		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
 		virtual void rubberbandbpmchangeEvent();
 		//~ implements EventListener interface
+
+	public slots:
+		virtual void selectedInstrumentChangedEvent();
 
 	private slots:
 		void rotaryChanged(Rotary *ref);
@@ -144,6 +146,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		//~ Layer properties
 
 
+		QTimer *m_pUpdateTimer;
 
 
 		void loadLayer();
