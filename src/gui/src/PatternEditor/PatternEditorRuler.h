@@ -36,7 +36,7 @@ namespace H2Core
 
 class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -45,6 +45,7 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 
 		void paintEvent(QPaintEvent *ev);
 		void updateStart(bool start);
+		void updateSize();
 
 		void showEvent( QShowEvent *ev );
 		void hideEvent( QHideEvent *ev );

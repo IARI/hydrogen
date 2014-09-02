@@ -55,10 +55,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_pPattern = NULL;
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
 
-	resize( m_nRulerWidth, m_nRulerHeight );
+	updateSize();
 
 	bool ok = m_tickPosition.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
 	if( ok == false ){
@@ -108,7 +107,11 @@ void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 	updateStart(false);
 }
 
-
+void PatternEditorRuler::updateSize()
+{
+	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 * 4 );
+	resize( m_nRulerWidth, m_nRulerHeight );
+}
 
 void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
@@ -189,7 +192,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
-	for ( int i = 0; i < 64 ; i++ ) {
+	for ( int i = 0; i < 64*4 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
@@ -221,8 +224,7 @@ void PatternEditorRuler::zoomIn()
 	{
 		m_nGridWidth *= 1.5;
 	}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
-	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
+	updateSize();
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
@@ -241,8 +243,7 @@ void PatternEditorRuler::zoomOut()
 		{
 			m_nGridWidth /= 1.5;
 		}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
-	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
+	updateSize();
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
