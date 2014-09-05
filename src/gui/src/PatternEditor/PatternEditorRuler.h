@@ -23,6 +23,8 @@
 #ifndef PATTERN_EDITOR_RULER_H
 #define PATTERN_EDITOR_RULER_H
 
+#define MAX_PATTERN_LENGTH 128
+
 #include "../EventListener.h"
 #include <QtGui>
 #include <hydrogen/object.h>

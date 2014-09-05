@@ -109,7 +109,7 @@ void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 
 void PatternEditorRuler::updateSize()
 {
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 * 4 );
+	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * MAX_PATTERN_LENGTH / 8 );
 	resize( m_nRulerWidth, m_nRulerHeight );
 }
 
@@ -192,7 +192,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
-	for ( int i = 0; i < 64*4 ; i++ ) {
+	for ( int i = 0; i < MAX_PATTERN_LENGTH * 2 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
