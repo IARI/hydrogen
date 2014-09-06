@@ -1287,6 +1287,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "Release", QString("%1").arg( instr->get_adsr()->get_release() ) );
 
 		LocalFileMng::writeXmlString( instrumentNode, "randomPitchFactor", QString("%1").arg( instr->get_random_pitch_factor() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "instrumentPitch", QString("%1").arg( instr->get_instrument_pitch() ) );
 
 		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( instr->get_mute_group() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isStopNote", instr->is_stop_notes() );

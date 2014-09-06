@@ -55,6 +55,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __filter_cutoff( 1.0 )
 	, __filter_resonance( 0.0 )
 	, __random_pitch_factor( 0.0 )
+	, __intrument_pitch( 0.0 )
 	, __midi_out_note( MIDI_MIDDLE_C )
 	, __midi_out_channel( -1 )
 	, __stop_notes( false )
@@ -84,6 +85,7 @@ Instrument::Instrument( Instrument* other )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
 	, __random_pitch_factor( other->get_random_pitch_factor() )
+	, __intrument_pitch( other->get_instrument_pitch() )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
@@ -168,6 +170,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_filter_cutoff( instrument->get_filter_cutoff() );
 	this->set_filter_resonance( instrument->get_filter_resonance() );
 	this->set_random_pitch_factor( instrument->get_random_pitch_factor() );
+	this->set_instrument_pitch( instrument->get_instrument_pitch() );
 	this->set_muted( instrument->is_muted() );
 	this->set_mute_group( instrument->get_mute_group() );
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
@@ -204,6 +207,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
 	instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
 	instrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
+	instrument->set_instrument_pitch( node->read_float( "instrumentPitch", 0.0f, true, false ) );
 	float attack = node->read_float( "Attack", 0.0f, true, false );
 	float decay = node->read_float( "Decay", 0.0f, true, false  );
 	float sustain = node->read_float( "Sustain", 1.0f, true, false );
@@ -257,6 +261,7 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_float( "pan_L", __pan_l );
 	instrument_node.write_float( "pan_R", __pan_r );
 	instrument_node.write_float( "randomPitchFactor", __random_pitch_factor );
+	instrument_node.write_float( "instrumentPitch", __intrument_pitch );
 	instrument_node.write_float( "gain", __gain );
 	instrument_node.write_bool( "filterActive", __filter_active );
 	instrument_node.write_float( "filterCutoff", __filter_cutoff );

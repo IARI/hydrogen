@@ -83,6 +83,29 @@ bool setCutoff( int instrumentNumber, int value )
 	return true;
 }
 
+bool setInstrumentPitch( int instrumentNumber, int value )
+{
+	//helper function to set cutOff levels
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	InstrumentList *instrList = song->get_instrument_list();
+	Instrument *instr = instrList->get( instrumentNumber );
+	if ( instr == NULL) return false;
+
+	if( value < 63 ){
+		instr->set_instrument_pitch( (float) ((value-62) / 62.0 * MAX_INSTRUMENT_PITCH ) );
+	} else if ( value > 64 ) {
+		instr->set_instrument_pitch( (float) ((value-65) / 62.0 * MAX_INSTRUMENT_PITCH ) );
+	} else {
+		instr->set_instrument_pitch( 0 );
+	}
+
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( instrList->index(instr) );
+
+	return true;
+}
+
 bool setSong( int songnumber ) {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Playlist *PL = Playlist::get_instance();
@@ -197,6 +220,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name )
 			  << "TOGGLE_METRONOME"
 			  << "SELECT_INSTRUMENT"
 			  << "INSTRUMENT_CUTOFF"
+			  << "INSTRUMENT_PITCH"
 			  << "UNDO_ACTION"
 			  << "REDO_ACTION";
 
@@ -404,6 +428,13 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 		int cutOff = pAction->getParameter2().toInt(&ok,10);
 		int nLine = pAction->getParameter1().toInt(&ok,10);
 		setCutoff( nLine, cutOff );
+	}
+
+	if( sActionString == "INSTRUMENT_PITCH" ){
+		bool ok;
+		int pitch = pAction->getParameter2().toInt(&ok,10);
+		int nLine = pAction->getParameter1().toInt(&ok,10);
+		setInstrumentPitch( nLine, pitch );
 	}
 
 	if( sActionString == "EFFECT1_LEVEL_ABSOLUTE" ){

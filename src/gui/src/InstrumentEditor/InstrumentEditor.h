@@ -95,6 +95,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		// Random pitch
 		Rotary *m_pRandomPitchRotary;
+		// Master pitch
+		Rotary *m_pInstrumentPitchRotary;
 
 		// Low pass filter
 		ToggleButton *m_pFilterBypassBtn;

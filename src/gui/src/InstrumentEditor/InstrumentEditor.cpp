@@ -161,8 +161,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pNameLbl->setFont( boldFont );
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 
+	m_pInstrumentPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, trUtf8( "Instrument pitch" ), false, true );
+	m_pInstrumentPitchRotary->move( 117, 192 );
+	m_pInstrumentPitchRotary->setMin( - MAX_INSTRUMENT_PITCH );
+	m_pInstrumentPitchRotary->setMax( MAX_INSTRUMENT_PITCH );
+	connect( m_pInstrumentPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Random pitch factor" ), false, true );
-	m_pRandomPitchRotary->move( 117, 192 );
+	m_pRandomPitchRotary->move( 170, 192 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Filter
@@ -405,11 +411,19 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		// filter
 		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active());
+
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff());
 		delete m_pCutoffRotary->getAction();
 		MidiAction* pAction = new MidiAction("INSTRUMENT_CUTOFF");
 		pAction->setParameter1( QString::number( nInstr ));
 		m_pCutoffRotary->setAction(pAction);
+
+		m_pInstrumentPitchRotary->setValue( m_pInstrument->get_instrument_pitch());
+		delete m_pInstrumentPitchRotary->getAction();
+		pAction = new MidiAction("INSTRUMENT_PITCH");
+		pAction->setParameter1( QString::number( nInstr ));
+		m_pInstrumentPitchRotary->setAction(pAction);
+
 
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance());
 		//~ filter
@@ -476,6 +490,9 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 	if ( m_pInstrument ) {
 		if ( ref == m_pRandomPitchRotary ){
 			m_pInstrument->set_random_pitch_factor( fVal );
+		}
+		else if ( ref == m_pInstrumentPitchRotary ) {
+			m_pInstrument->set_instrument_pitch( fVal );
 		}
 		else if ( ref == m_pCutoffRotary ) {
 			m_pInstrument->set_filter_cutoff( fVal );

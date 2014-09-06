@@ -24,6 +24,8 @@
 
 #define MAX_INSTRUMENTS         1000
 
+#define MAX_INSTRUMENT_PITCH         24.0
+
 #define MAX_NOTES               192
 
 #define MAX_LAYERS              16

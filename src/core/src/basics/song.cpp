@@ -455,6 +455,7 @@ Song* SongReader::readSong( const QString& filename )
 			int fRelease = LocalFileMng::readXmlInt( instrumentNode, "Release", 1000, false, false );	// Release
 
 			float fRandomPitchFactor = LocalFileMng::readXmlFloat( instrumentNode, "randomPitchFactor", 0.0f, false, false );
+			float fInstrumentPitch = LocalFileMng::readXmlFloat( instrumentNode, "instrumentPitch", 0.0f, false, false );
 
 			bool bFilterActive = LocalFileMng::readXmlBool( instrumentNode, "filterActive", false );
 			float fFilterCutoff = LocalFileMng::readXmlFloat( instrumentNode, "filterCutoff", 1.0f, false );
@@ -486,6 +487,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_fx_level( fFX3Level, 2 );
 			pInstrument->set_fx_level( fFX4Level, 3 );
 			pInstrument->set_random_pitch_factor( fRandomPitchFactor );
+			pInstrument->set_instrument_pitch( fInstrumentPitch );
 			pInstrument->set_filter_active( bFilterActive );
 			pInstrument->set_filter_cutoff( fFilterCutoff );
 			pInstrument->set_filter_resonance( fFilterResonance );
